@@ -1,0 +1,108 @@
+{
+  "config": {
+    "step": {
+      "zeroconf": {
+        "title": "EISUS device discovered",
+        "description": "Add the EISUS device at {name}? You will need its local access token."
+      },
+      "user": {
+        "title": "EISUS device",
+        "description": "Enter the device address and its local access token. The device answers on the LAN only; the token is issued by the EISUS platform and stored on the device itself.",
+        "data": {
+          "host": "IP address or hostname",
+          "port": "Port",
+          "token": "Local token"
+        }
+      },
+      "reauth_confirm": {
+        "title": "EISUS token rejected",
+        "description": "The device at {host} rejected the stored local token. Enter the current token.",
+        "data": { "token": "Local token" }
+      }
+    },
+    "error": {
+      "invalid_auth": "Invalid local token",
+      "cannot_connect": "Cannot connect to the device"
+    },
+    "abort": {
+      "already_configured": "Device already configured",
+      "cannot_connect": "Device could not be reached",
+      "reauth_successful": "Local token updated"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "EISUS device connection",
+        "description": "Update the address or the local token of this device.",
+        "data": {
+          "host": "IP address or hostname",
+          "port": "Port",
+          "token": "Local token"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Invalid local token",
+      "cannot_connect": "Cannot connect to the device"
+    }
+  },
+  "services": {
+    "send_command": {
+      "name": "Send raw command",
+      "description": "Send a raw JSON payload to one of the device's local HTTP endpoints (advanced use, e.g. full schedule upload).",
+      "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "The EISUS device to send the command to."
+        },
+        "endpoint": {
+          "name": "Endpoint",
+          "description": "cmd (outputs and configuration), timer, schedule or time."
+        },
+        "payload": {
+          "name": "Payload",
+          "description": "JSON object matching the firmware command schema."
+        }
+      }
+    },
+    "set_time": {
+      "name": "Set device time",
+      "description": "Set the device clock. Defaults to the current Home Assistant time, which keeps schedules and timers working without internet (no NTP).",
+      "fields": {
+        "device_id": { "name": "Device", "description": "The EISUS device to set the clock on." },
+        "use_now": { "name": "Use current time", "description": "Push the current Home Assistant time (default)." },
+        "epoch": { "name": "Epoch", "description": "Unix timestamp to set instead of the current time." },
+        "timezone": { "name": "Timezone", "description": "IANA timezone name stored on the device." },
+        "offset_sec": { "name": "UTC offset", "description": "Timezone offset in seconds." }
+      }
+    },
+    "set_schedule": {
+      "name": "Set weekly schedule",
+      "description": "Replace every weekly schedule rule on the device (empty list clears the schedule).",
+      "fields": {
+        "device_id": { "name": "Device", "description": "The EISUS device to upload the schedule to." },
+        "rules": { "name": "Rules", "description": "List of rules: days (list or bitmask), start, end, outputs." }
+      }
+    },
+    "cancel_timer": {
+      "name": "Cancel timers",
+      "description": "Cancel the running timer or pulse of one output, or of every output when none is given.",
+      "fields": {
+        "device_id": { "name": "Device", "description": "The EISUS device to cancel timers on." },
+        "output": { "name": "Output", "description": "Output number (1-4); omit for all outputs." }
+      }
+    },
+    "calibrate_shutter": {
+      "name": "Calibrate shutter",
+      "description": "Start/end interactive shutter calibration or set the travel times directly (open_time_ms / close_time_ms).",
+      "fields": {
+        "device_id": { "name": "Device", "description": "The EISUS shutter device to calibrate." },
+        "mode": { "name": "Mode", "description": "start = enter calibration, end = store and leave." },
+        "action": { "name": "Action", "description": "Jog the motor: open, stop or close." },
+        "open_time_ms": { "name": "Open travel time", "description": "Opening travel time in milliseconds." },
+        "close_time_ms": { "name": "Close travel time", "description": "Closing travel time in milliseconds." }
+      }
+    }
+  }
+}

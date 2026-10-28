@@ -1,0 +1,166 @@
+send_command:
+  name: Send raw command
+  description: >-
+    Send a raw JSON payload to one of the device's local HTTP endpoints. Use it
+    for firmware features that do not have their own entity, for example a full
+    weekly schedule upload ({ "command": "set", "rules": [ ... ] }).
+  fields:
+    device_id:
+      name: Device
+      description: The EISUS device to send the command to.
+      required: true
+      selector:
+        device:
+          integration: eisus
+    endpoint:
+      name: Endpoint
+      description: >-
+        cmd = outputs and configuration, timer = one-shot timers,
+        schedule = weekly rules, time = device clock.
+      default: cmd
+      selector:
+        select:
+          options:
+            - cmd
+            - timer
+            - schedule
+            - time
+    payload:
+      name: Payload
+      description: JSON object matching the firmware command schema.
+      required: true
+      selector:
+        object:
+
+set_time:
+  name: Set device time
+  description: >-
+    Set the clock of the EISUS device (firmware v9.6.6 /local/time/set). By
+    default the Home Assistant clock is pushed, which keeps schedules and
+    timers working on a LAN-only install where the device cannot reach NTP.
+  fields:
+    device_id:
+      name: Device
+      description: The EISUS device to set the clock on.
+      required: true
+      selector:
+        device:
+          integration: eisus
+    use_now:
+      name: Use current time
+      description: Push the current Home Assistant time (default).
+      default: true
+      selector:
+        boolean:
+    epoch:
+      name: Epoch
+      description: Unix timestamp to set instead of the current time.
+      selector:
+        number:
+          min: 1700000000
+          mode: box
+    timezone:
+      name: Timezone
+      description: IANA timezone name stored on the device (e.g. Africa/Cairo).
+      selector:
+        text:
+    offset_sec:
+      name: UTC offset
+      description: Timezone offset in seconds (e.g. 7200 for UTC+2).
+      selector:
+        number:
+          min: -43200
+          max: 50400
+          mode: box
+
+set_schedule:
+  name: Set weekly schedule
+  description: >-
+    Replace every weekly schedule rule on the device. Days can be a list
+    (mon, tue) or a bitmask, start/end accept "07:00" or minutes past
+    midnight, and outputs accept {1: true} or {output1: true}.
+  fields:
+    device_id:
+      name: Device
+      description: The EISUS device to upload the schedule to.
+      required: true
+      selector:
+        device:
+          integration: eisus
+    rules:
+      name: Rules
+      description: >-
+        List of rules, e.g. [{days: [mon, tue], start: "07:00", end: "23:00",
+        outputs: {1: true}}]. An empty list clears the schedule.
+      required: true
+      selector:
+        object:
+
+cancel_timer:
+  name: Cancel timers
+  description: >-
+    Cancel the running timer (or pulse) of one output, or of every output when
+    no output is given.
+  fields:
+    device_id:
+      name: Device
+      description: The EISUS device to cancel timers on.
+      required: true
+      selector:
+        device:
+          integration: eisus
+    output:
+      name: Output
+      description: Output number (1-4). Omit to cancel every output.
+      selector:
+        number:
+          min: 1
+          max: 4
+          mode: box
+
+calibrate_shutter:
+  name: Calibrate shutter
+  description: >-
+    Start/end interactive shutter calibration, or set the travel times directly
+    (open_time_ms / close_time_ms). The device must be in shutter mode.
+  fields:
+    device_id:
+      name: Device
+      description: The EISUS device (shutter) to calibrate.
+      required: true
+      selector:
+        device:
+          integration: eisus
+    mode:
+      name: Mode
+      description: start = enter calibration, end = store and leave.
+      selector:
+        select:
+          options:
+            - start
+            - end
+    action:
+      name: Action
+      description: Jog the motor during calibration (open, stop, close).
+      selector:
+        select:
+          options:
+            - open
+            - stop
+            - close
+    open_time_ms:
+      name: Open travel time
+      description: Full opening travel time in milliseconds (500-120000).
+      selector:
+        number:
+          min: 500
+          max: 120000
+          mode: box
+    close_time_ms:
+      name: Close travel time
+      description: Full closing travel time in milliseconds (500-120000).
+      selector:
+        number:
+          min: 500
+          max: 120000
+          mode: box
